@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Recepten">
+<title>Recepten – Pascale & Pioppi</title>
+<style>
+  :root {
+    --bg:#faf9f7;--surface:#fff;--border:rgba(0,0,0,.1);--bmed:rgba(0,0,0,.18);
+    --text:#1a1a18;--muted:#706f6b;--hint:#a09f9a;
+    --accent:#D85A30;--adark:#712B13;
+    --green:#639922;--gbg:#EAF3DE;--gdark:#27500A;
+    --blue:#378ADD;--bbg:#E6F1FB;--bdark:#0C447C;
+    --cbg:#FAECE7;
+    --amber:#BA7517;--abg:#FAEEDA;--ambdark:#633806;
+    --r:12px;--rm:8px;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1a18;--surface:#242422;--border:rgba(255,255,255,.1);--bmed:rgba(255,255,255,.18);
+      --text:#f0efe9;--muted:#a09f9a;--hint:#706f6b;
+      --accent:#F0997B;--adark:#F5C4B3;
+      --green:#97C459;--gbg:#173404;--gdark:#C0DD97;
+      --blue:#85B7EB;--bbg:#042C53;--bdark:#B5D4F4;
+      --cbg:#4A1B0C;
+      --amber:#EF9F27;--abg:#412402;--ambdark:#FAC775;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;min-height:100vh}
+
+  /* header */
+  .hdr{background:var(--surface);border-bottom:.5px solid var(--border);padding:1rem 1.25rem .75rem;position:sticky;top:0;z-index:10}
+  .hdr-top{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.625rem}
+  .hdr h1{font-size:17px;font-weight:600;letter-spacing:-.2px}
+  .hdr-sub{font-size:11px;color:var(--muted)}
+  .tabs{display:flex;gap:4px}
+  .tbtn{flex:1;padding:.55rem .5rem;background:var(--bg);border:.5px solid var(--border);border-radius:var(--rm);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);font-family:inherit;transition:all .15s}
+  .tbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .main{max-width:600px;margin:0 auto;padding:1.25rem 1rem 5rem}
+
+  /* filter bar */
+  .fbar{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+  .fbtn{padding:.35rem .75rem;background:var(--surface);border:.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+  .fbtn.on{color:#fff;border-color:transparent}
+  .fbtn.fa{background:var(--text);color:var(--bg)}
+  .fbtn.fg.on{background:var(--green);} .fbtn.fv.on{background:var(--blue);}
+  .fbtn.fm.on{background:var(--accent);} .fbtn.fp.on{background:var(--amber);color:#fff}
+
+  /* category sections */
+  .cat-s{margin-bottom:2rem}
+  .cat-hd{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:2px solid}
+  .cat-hd h2{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+  .cat-cnt{margin-left:auto;font-size:11px;color:var(--muted)}
+  .cat-gr .cat-hd{border-color:var(--green)} .cat-gr .cat-hd h2{color:var(--gdark)}
+  .cat-bl .cat-hd{border-color:var(--blue)}  .cat-bl .cat-hd h2{color:var(--bdark)}
+  .cat-co .cat-hd{border-color:var(--accent)}.cat-co .cat-hd h2{color:var(--adark)}
+
+  /* recipe cards */
+  .rcard{background:var(--surface);border:.5px solid var(--border);border-left:3px solid;border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+  .cat-gr .rcard{border-left-color:var(--green)} .cat-bl .rcard{border-left-color:var(--blue)} .cat-co .rcard{border-left-color:var(--accent)}
+  .rcard.pioppi{border-left-color:var(--amber)!important}
+  .rhdr{display:flex;align-items:center;width:100%;padding:.875rem 1rem;background:none;border:none;cursor:pointer;text-align:left;gap:10px;font-family:inherit}
+  .rtitle{font-size:14px;font-weight:500;color:var(--text);line-height:1.35;flex:1}
+  .rmeta{font-size:11px;color:var(--muted);margin-top:2px}
+  .badge{display:inline-block;font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle}
+  .badge-keto{color:var(--gdark);background:var(--gbg)}
+  .badge-pioppi{color:var(--ambdark);background:var(--abg)}
+  .rchev{color:var(--hint);font-size:10px;transition:transform .2s;flex-shrink:0}
+  .rcard.op .rchev{transform:rotate(180deg)}
+  .rbody{display:none;padding:.875rem 1rem;border-top:.5px solid var(--border)}
+  .rcard.op .rbody{display:block}
+  .ihead{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:8px}
+  .irow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px dashed var(--border);font-size:13px}
+  .irow:last-of-type{border-bottom:none}
+  .iamt{font-weight:600;margin-left:8px;white-space:nowrap;color:var(--adark)}
+  .inote{margin-top:8px;font-size:11px;color:var(--muted);font-style:italic}
+
+  /* boodschappen */
+  .pers-card{background:var(--surface);border:.5px solid var(--bmed);border-radius:var(--r);padding:1.5rem 1.25rem 1.25rem;margin-bottom:1.5rem;text-align:center}
+  .pers-title{font-size:15px;font-weight:500;margin-bottom:1.25rem}
+  .pers-row{display:flex;align-items:center;justify-content:center;gap:1.5rem}
+  .pb{width:44px;height:44px;border-radius:50%;border:.5px solid var(--bmed);background:var(--bg);color:var(--text);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+  #pval{font-size:40px;font-weight:600;min-width:52px;text-align:center;color:var(--text);line-height:1}
+  .pers-sub{font-size:12px;color:var(--muted);margin-top:.75rem}
+  .div-line{border:none;border-top:.5px solid var(--border);margin:0 0 1.25rem}
+  .sel-hint{font-size:13px;color:var(--muted);margin-bottom:1rem}
+  .csec{margin-bottom:1.25rem}
+  .csecl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.5rem}
+  .csec-gr .csecl{color:var(--gdark)} .csec-bl .csecl{color:var(--bdark)} .csec-co .csecl{color:var(--adark)}
+  .rchk{display:flex;align-items:center;gap:10px;padding:.75rem .875rem;background:var(--surface);border:.5px solid var(--border);border-radius:var(--rm);cursor:pointer;margin-bottom:6px;transition:background .12s,border-color .12s}
+  .rchk input{width:18px;height:18px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)}
+  .rcn{font-size:13px;font-weight:500;color:var(--text)} .rct{font-size:11px;color:var(--muted)}
+  .rchk.ck-gr{background:var(--gbg);border-color:var(--green)}
+  .rchk.ck-bl{background:var(--bbg);border-color:var(--blue)}
+  .rchk.ck-co{background:var(--cbg);border-color:var(--accent)}
+  .rchk.ck-am{background:var(--abg);border-color:var(--amber)}
+  .gbtn{width:100%;padding:.9rem;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:1.5rem;font-family:inherit}
+  .gbtn:hover{opacity:.88}
+  .slist{border:.5px solid var(--bmed);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+  .slhd{display:flex;align-items:start;justify-content:space-between;padding:.875rem 1rem;border-bottom:.5px solid var(--border);background:var(--bg)}
+  .sltit{font-size:15px;font-weight:600} .slmet{font-size:11px;color:var(--muted);margin-top:2px}
+  .slrst{background:none;border:.5px solid var(--border);border-radius:var(--rm);font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;padding:.3rem .75rem}
+  .slsec{padding:.625rem 1rem .25rem}
+  .slsecl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:.375rem}
+  .sli{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:.5px solid var(--border);font-size:13.5px;cursor:pointer}
+  .sli:last-child{border-bottom:none}
+  .sli input{width:16px;height:16px;flex-shrink:0;pointer-events:none;accent-color:var(--accent)}
+  .slin{flex:1;color:var(--text)} .sliam{font-weight:600;color:var(--adark);white-space:nowrap;font-size:13px}
+  .sli.done{opacity:.3} .sli.done .slin{text-decoration:line-through}
+  .slgar{padding:.5rem 1rem .875rem;font-size:11px;color:var(--muted);font-style:italic;border-top:.5px solid var(--border)}
+  .hid{display:none!important}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-top">
+    <h1>Recepten</h1>
+    <span class="hdr-sub">Pascale Naessens &amp; Pioppi-stijl</span>
+  </div>
+  <div class="tabs">
+    <button class="tbtn on" data-t="r">&#127859; Recepten</button>
+    <button class="tbtn" data-t="b">&#128722; Boodschappen</button>
+  </div>
+</div>
+<div class="main">
+  <div id="rv"></div>
+  <div id="bv" class="hid"></div>
+</div>
+<script>
+const CA=[
+  {k:'gr',cs:'cat-gr',lb:'Groente',ck:'ck-gr',sc:'csec-gr'},
+  {k:'vis',cs:'cat-bl',lb:'Vis & Schaaldieren',ck:'ck-bl',sc:'csec-bl'},
+  {k:'vl',cs:'cat-co',lb:'Vlees',ck:'ck-co',sc:'csec-co'},
+];
+const SE=[
+  {k:'agf',l:'Groente, Fruit & Vers'},
+  {k:'vleesvis',l:'Vis & Vlees'},
+  {k:'zuivel',l:'Zuivel & Kaas'},
+  {k:'droog',l:'Kruidenierswaren'},
+  {k:'sauzen',l:'Sauzen & Kruiden'},
+];
+
+/* ─── RECEPTEN ─────────────────────────────────────────── */
+const RL=[
+  /* SUPER SIMPEL */
+  {id:1,n:'Gewokte groenten met halloumi',c:'gr',bk:'Super Simpel',t:'22 min',b:2,keto:0,pioppi:0,
+   i:[{a:2,u:'st',s:'agf',n:'zoete paprika (lang)'},{a:2,u:'st',s:'agf',n:'witlof'},{a:150,u:'g',s:'agf',n:'spinazie'},{a:200,u:'g',s:'zuivel',n:'halloumi'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:3,u:'cm',s:'agf',n:'verse gember'},{a:.5,u:'st',s:'agf',n:'citroen'},{a:2,u:'el',s:'sauzen',n:'milde sojasaus'}],g:['sesamzaadjes']},
+  {id:2,n:'Salade met geroosterde pompoen & feta',c:'gr',bk:'Super Simpel',t:'42 min',b:2,keto:0,pioppi:0,
+   i:[{a:500,u:'g',s:'agf',n:'pompoen (zonder schil)'},{a:300,u:'g',s:'agf',n:'kleine tomaatjes'},{a:200,u:'g',s:'zuivel',n:'feta'},{a:3,u:'st',s:'agf',n:'sjalot'},{a:20,u:'g',s:'agf',n:'bladpeterselie'},{a:.5,u:'st',s:'agf',n:'citroen'}],g:[]},
+  {id:3,n:'Wortelspaghetti met feta uit de oven',c:'gr',bk:'Super Simpel',t:'42 min',b:2,keto:0,pioppi:0,
+   i:[{a:6,u:'st',s:'agf',n:'lange wortels'},{a:50,u:'g',s:'zuivel',n:'Parmezaanse kaas (gemalen)'},{a:3,u:'el',s:'sauzen',n:'milde sojasaus'},{a:10,u:'partjes',s:'droog',n:'zongedroogde tomaatjes in olie'},{a:100,u:'g',s:'zuivel',n:'feta'}],g:['bieslook']},
+  {id:4,n:'Groene curry van zoete aardappel & quinoa',c:'gr',bk:'Super Simpel',t:'30 min',b:2,keto:0,pioppi:0,
+   i:[{a:400,u:'g',s:'agf',n:'zoete aardappel'},{a:80,u:'g',s:'droog',n:'witte quinoa'},{a:200,u:'g',s:'agf',n:'snijbonen'},{a:1,u:'st',s:'agf',n:'rode puntpaprika'},{a:1,u:'st',s:'agf',n:'sjalot'},{a:2,u:'el',s:'sauzen',n:'groene currypasta'},{a:1,u:'st',s:'agf',n:'citroengras'},{a:400,u:'ml',s:'droog',n:'kokosmelk'},{a:.5,u:'st',s:'agf',n:'limoen'}],g:['verse koriander']},
+  {id:9,n:'Gebakken courgettes met parmezaan',c:'gr',bk:'Nog Eenvoudiger',t:'20 min',b:2,keto:1,pioppi:0,
+   i:[{a:3,u:'st',s:'agf',n:'courgettes (kleine)'},{a:30,u:'g',s:'droog',n:'pijnboompitten'},{a:100,u:'g',s:'agf',n:'bladpeterselie'},{a:70,u:'g',s:'zuivel',n:'parmezaan'},{a:1,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'el',s:'sauzen',n:'ciderazijn'}],g:[]},
+  {id:15,n:'Groentestoof met mozzarella',c:'gr',bk:'KoolhydraatarmRecept.nl',t:'30 min',b:4,keto:0,pioppi:0,
+   i:[{a:2,u:'st',s:'agf',n:'rode uien'},{a:4,u:'st',s:'agf',n:'bleekselderij (stengels)'},{a:700,u:'g',s:'agf',n:'courgette'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'st',s:'agf',n:'rode peper'},{a:400,u:'g',s:'agf',n:'bloemkoolrijst'},{a:300,u:'ml',s:'droog',n:'groentebouillon'},{a:20,u:'g',s:'agf',n:'verse basilicum'},{a:250,u:'g',s:'zuivel',n:'mozzarella'},{a:60,u:'g',s:'zuivel',n:'Parmezaanse kaas (geraspt)'}],g:[]},
+
+  /* PIOPPI-STIJL GROENTE */
+  {id:16,n:'Geroosterde aubergine met tahini & munt',c:'gr',bk:'Pioppi-stijl',t:'30 min',b:2,keto:1,pioppi:1,
+   i:[{a:2,u:'st',s:'agf',n:'aubergines'},{a:4,u:'el',s:'sauzen',n:'tahini'},{a:1,u:'st',s:'agf',n:'citroen'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:20,u:'g',s:'agf',n:'verse munt'},{a:30,u:'g',s:'droog',n:'granaatappelpitten'}],g:['extra vierge olijfolie']},
+  {id:17,n:'Bloemkoolrisotto met parmezaan & citroen',c:'gr',bk:'Pioppi-stijl',t:'20 min',b:2,keto:1,pioppi:1,
+   i:[{a:600,u:'g',s:'agf',n:'bloemkool'},{a:80,u:'g',s:'zuivel',n:'parmezaan (geraspt)'},{a:1,u:'st',s:'agf',n:'sjalot'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:150,u:'ml',s:'zuivel',n:'volle room'},{a:20,u:'g',s:'agf',n:'verse peterselie'},{a:1,u:'st',s:'agf',n:'citroen'}],g:[]},
+  {id:18,n:'Shakshuka met feta',c:'gr',bk:'Pioppi-stijl',t:'25 min',b:2,keto:1,pioppi:1,
+   i:[{a:4,u:'st',s:'agf',n:'eieren'},{a:400,u:'g',s:'droog',n:'gepelde tomaten (blik)'},{a:1,u:'st',s:'agf',n:'rode paprika'},{a:1,u:'st',s:'agf',n:'ui'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:100,u:'g',s:'zuivel',n:'feta'},{a:1,u:'tl',s:'sauzen',n:'komijn (gemalen)'},{a:1,u:'tl',s:'sauzen',n:'paprikapoeder'}],g:['verse koriander of peterselie']},
+
+  /* SUPER SIMPEL VIS */
+  {id:5,n:'Vis verpakt in courgette met roomsaus',c:'vis',bk:'Super Simpel',t:'45 min',b:2,keto:0,pioppi:0,
+   i:[{a:300,u:'g',s:'vleesvis',n:'schelvishaasje (of vis naar keuze)'},{a:1,u:'st',s:'agf',n:'courgette'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:150,u:'ml',s:'zuivel',n:'volle room'},{a:150,u:'g',s:'zuivel',n:'zure room'},{a:80,u:'g',s:'droog',n:'zongedroogde tomaatjes in olie'},{a:1,u:'st',s:'agf',n:'sjalot'},{a:30,u:'g',s:'droog',n:'hazelnoten'}],g:['verse peterselie','bieslook']},
+  {id:6,n:'Zonovergoten mediterraan visgerecht',c:'vis',bk:'Super Simpel',t:'30 min',b:2,keto:0,pioppi:0,
+   i:[{a:300,u:'g',s:'vleesvis',n:'stevige witte visfilets'},{a:1,u:'st',s:'agf',n:'courgette'},{a:1,u:'st',s:'agf',n:'venkelknol (klein)'},{a:2,u:'st',s:'agf',n:'tomaten'},{a:1,u:'st',s:'agf',n:'ui'},{a:1,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'st',s:'agf',n:'biologische citroen'},{a:1,u:'el',s:'agf',n:'peterselie (fijngehakt)'},{a:120,u:'ml',s:'droog',n:'droge witte wijn'},{a:1.5,u:'tl',s:'sauzen',n:'Provençaalse kruiden'}],g:[]},
+  {id:14,n:'Scampi met courgette in kruidensausje',c:'vis',bk:'Nog Eenvoudiger',t:'15 min',b:2,keto:1,pioppi:0,
+   i:[{a:400,u:'g',s:'vleesvis',n:'gepelde scampi'},{a:100,u:'g',s:'droog',n:'zongedroogde tomaten in olie'},{a:60,u:'g',s:'agf',n:'verse basilicum'},{a:2,u:'st',s:'agf',n:'courgettes'},{a:2,u:'teen',s:'agf',n:'knoflook'}],g:[]},
+
+  /* PIOPPI-STIJL VIS */
+  {id:19,n:'Tonijn niçoise',c:'vis',bk:'Pioppi-stijl',t:'20 min',b:2,keto:1,pioppi:1,
+   i:[{a:300,u:'g',s:'vleesvis',n:'verse tonijnsteaks (of 2 blikken tonijn)'},{a:4,u:'st',s:'agf',n:'eieren'},{a:200,u:'g',s:'agf',n:'sperziebonen'},{a:200,u:'g',s:'agf',n:'cherrytomaatjes'},{a:80,u:'g',s:'droog',n:'zwarte olijven'},{a:1,u:'st',s:'agf',n:'sjalot'},{a:4,u:'el',s:'sauzen',n:'extra vierge olijfolie'},{a:1,u:'el',s:'sauzen',n:'rode wijnazijn'}],g:[]},
+  {id:20,n:'Gegrilde makreel met kappertjes & spinazie',c:'vis',bk:'Pioppi-stijl',t:'20 min',b:2,keto:1,pioppi:1,
+   i:[{a:2,u:'st',s:'vleesvis',n:'makreelfilets (ca. 300 g)'},{a:2,u:'el',s:'droog',n:'kappertjes'},{a:1,u:'st',s:'agf',n:'citroen'},{a:200,u:'g',s:'agf',n:'spinazie'},{a:2,u:'teen',s:'agf',n:'knoflook'}],g:['extra vierge olijfolie']},
+  {id:21,n:'Sardines met cherrytomaatjes & olijven',c:'vis',bk:'Pioppi-stijl',t:'25 min',b:2,keto:1,pioppi:1,
+   i:[{a:400,u:'g',s:'vleesvis',n:'verse sardines (of makreel)'},{a:300,u:'g',s:'agf',n:'cherrytomaatjes'},{a:80,u:'g',s:'droog',n:'zwarte olijven'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'st',s:'agf',n:'citroen'},{a:20,u:'g',s:'agf',n:'verse basilicum'}],g:['extra vierge olijfolie']},
+
+  /* SUPER SIMPEL VLEES */
+  {id:7,n:'Boterkip met groenten',c:'vl',bk:'Super Simpel',t:'50 min',b:2,keto:0,pioppi:0,
+   i:[{a:300,u:'g',s:'vleesvis',n:'kippendijenvlees'},{a:300,u:'g',s:'agf',n:'bloemkoolroosjes'},{a:50,u:'g',s:'droog',n:'ongezouten cashewnoten'},{a:2,u:'st',s:'agf',n:'tomaten'},{a:1,u:'st',s:'agf',n:'ui'},{a:4,u:'cm',s:'agf',n:'verse gember'},{a:4,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'st',s:'agf',n:'rode chilipeper'}],g:['verse koriander']},
+  {id:8,n:'Indiaas geïnspireerde lamscurry',c:'vl',bk:'Nog Eenvoudiger 2',t:'1u55',b:2,keto:0,pioppi:0,
+   i:[{a:300,u:'g',s:'vleesvis',n:'lamsvlees'},{a:2,u:'st',s:'agf',n:'ui'},{a:4,u:'cm',s:'agf',n:'verse gember'},{a:3,u:'teen',s:'agf',n:'knoflook'},{a:250,u:'g',s:'zuivel',n:'Griekse yoghurt'},{a:2,u:'st',s:'agf',n:'tomaten'},{a:2,u:'el',s:'sauzen',n:'rode currypasta'}],g:['verse koriander']},
+  {id:10,n:'Kip met room en spinazie',c:'vl',bk:'Nog Eenvoudiger',t:'30 min',b:2,keto:1,pioppi:0,
+   i:[{a:6,u:'st',s:'vleesvis',n:'kippenbouten'},{a:300,u:'g',s:'agf',n:'spinazie'},{a:200,u:'ml',s:'zuivel',n:'room of kokosmelk'},{a:2,u:'el',s:'sauzen',n:'zoet paprikapoeder'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:20,u:'g',s:'zuivel',n:'boter'}],g:[]},
+  {id:11,n:'Entrecote met knolselder & tomaten-mosterdsausje',c:'vl',bk:'Nog Eenvoudiger',t:'30 min',b:2,keto:1,pioppi:0,
+   i:[{a:2,u:'st',s:'vleesvis',n:'varkensentrecotes'},{a:400,u:'g',s:'agf',n:'knolselder'},{a:30,u:'st',s:'agf',n:'kerstomaatjes (met takjes)'},{a:20,u:'g',s:'agf',n:'bieslook'},{a:3,u:'el',s:'sauzen',n:'mosterd'},{a:1,u:'tl',s:'sauzen',n:'ras el hanout'}],g:[]},
+  {id:12,n:'Kip met champignons en roomsaus',c:'vl',bk:'Nog Eenvoudiger',t:'25 min',b:2,keto:1,pioppi:0,
+   i:[{a:500,u:'g',s:'agf',n:'bruine champignons'},{a:2,u:'st',s:'vleesvis',n:'kipfilets (klein)'},{a:100,u:'g',s:'vleesvis',n:'spekreepjes'},{a:125,u:'ml',s:'zuivel',n:'room'}],g:[]},
+  {id:13,n:'Kip met gember en spinazie',c:'vl',bk:'Nog Eenvoudiger',t:'20 min',b:2,keto:0,pioppi:0,
+   i:[{a:2,u:'st',s:'vleesvis',n:'kipfilets'},{a:7,u:'cm',s:'agf',n:'verse gember'},{a:300,u:'g',s:'agf',n:'spinazie'},{a:2,u:'st',s:'agf',n:'lente-uitjes'},{a:3,u:'teen',s:'agf',n:'knoflook'},{a:8,u:'el',s:'sauzen',n:'sojasaus'},{a:5,u:'el',s:'sauzen',n:'balsamicoazijn'}],g:[]},
+
+  /* PIOPPI-STIJL VLEES */
+  {id:22,n:'Lamskoteletjes met rozemarijn & geroosterde paprika',c:'vl',bk:'Pioppi-stijl',t:'25 min',b:2,keto:1,pioppi:1,
+   i:[{a:4,u:'st',s:'vleesvis',n:'lamskoteletjes (ca. 400 g)'},{a:2,u:'st',s:'agf',n:'rode paprika\'s'},{a:3,u:'teen',s:'agf',n:'knoflook'},{a:2,u:'takjes',s:'agf',n:'verse rozemarijn'},{a:1,u:'st',s:'agf',n:'citroen'}],g:['extra vierge olijfolie']},
+  {id:23,n:'Kip met olijven, tomaten & tijm',c:'vl',bk:'Pioppi-stijl',t:'35 min',b:2,keto:1,pioppi:1,
+   i:[{a:4,u:'st',s:'vleesvis',n:'kippendijen (ca. 500 g)'},{a:100,u:'g',s:'droog',n:'groene olijven'},{a:200,u:'g',s:'agf',n:'cherrytomaatjes'},{a:2,u:'teen',s:'agf',n:'knoflook'},{a:1,u:'st',s:'agf',n:'citroen'},{a:4,u:'takjes',s:'agf',n:'verse tijm'}],g:[]},
+];
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+function fmt(n){
+  n=Math.round(n*4)/4;
+  const w=Math.floor(n),f=Math.round((n-w)*4)/4;
+  const fm={0.25:'¼',0.5:'½',0.75:'¾'};
+  if(f===0)return w===0?'–':`${w}`;
+  return w>0?`${w}${fm[f]||''}`:(fm[f]||`${f}`);
+}
+
+/* ─── RECEPTEN TAB ───────────────────────────────────────── */
+let activeFilter='all';
+
+function filterBtns(id){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  activeFilter=id.replace('f-','');
+  renderRecipes();
+}
+
+function recipeVisible(r){
+  if(activeFilter==='all')return true;
+  if(activeFilter==='gr')return r.c==='gr';
+  if(activeFilter==='vis')return r.c==='vis';
+  if(activeFilter==='vl')return r.c==='vl';
+  if(activeFilter==='pioppi')return r.pioppi===1;
+  return true;
+}
+
+function renderRecipes(){
+  let h='';
+  CA.forEach(cat=>{
+    const rs=RL.filter(r=>r.c===cat.k && recipeVisible(r));
+    if(!rs.length)return;
+    h+=`<div class="cat-s ${cat.cs}"><div class="cat-hd"><h2>${cat.lb}</h2><span class="cat-cnt">${rs.length} recepten</span></div>`;
+    rs.forEach(rec=>{
+      const badges=(rec.keto?`<span class="badge badge-keto">keto</span>`:'')+
+                   (rec.pioppi?`<span class="badge badge-pioppi">pioppi</span>`:'');
+      h+=`<div class="rcard${rec.pioppi?' pioppi':''}" id="rc${rec.id}">
+        <button class="rhdr" onclick="tog(${rec.id})">
+          <div style="flex:1">
+            <div class="rtitle">${rec.n}${badges}</div>
+            <div class="rmeta">&#8987; ${rec.t} &middot; ${rec.bk}</div>
+          </div>
+          <span class="rchev">&#9660;</span>
+        </button>
+        <div class="rbody">
+          <p class="ihead">Ingrediënten voor ${rec.b} persoon${rec.b>1?'en':''}:</p>
+          ${rec.i.map(i=>`<div class="irow"><span>${i.n}</span><span class="iamt">${fmt(i.a)} ${i.u}</span></div>`).join('')}
+          ${rec.g.length?`<p class="inote">Afwerking / basis: ${rec.g.join(', ')}</p>`:''}
+        </div>
+      </div>`;
+    });
+    h+='</div>';
+  });
+  document.getElementById('rlist').innerHTML=h;
+}
+
+function buildR(){
+  document.getElementById('rv').innerHTML=`
+    <div class="fbar">
+      <button class="fbtn fa on" id="f-all" onclick="filterBtns('f-all')">Alles (${RL.length})</button>
+      <button class="fbtn fg" id="f-gr" onclick="filterBtns('f-gr')">&#129382; Groente</button>
+      <button class="fbtn fv" id="f-vis" onclick="filterBtns('f-vis')">&#127843; Vis</button>
+      <button class="fbtn fm" id="f-vl" onclick="filterBtns('f-vl')">&#127831; Vlees</button>
+      <button class="fbtn fp" id="f-pioppi" onclick="filterBtns('f-pioppi')">&#127470;&#127481; Pioppi-stijl</button>
+    </div>
+    <div id="rlist"></div>`;
+  renderRecipes();
+}
+
+function tog(id){document.getElementById('rc'+id).classList.toggle('op');}
+
+/* ─── BOODSCHAPPEN TAB ───────────────────────────────────── */
+let pers=2,sel=[],gen=false;
+
+function buildB(){
+  let h=`<div class="pers-card">
+    <div class="pers-title">Voor hoeveel personen kook je?</div>
+    <div class="pers-row">
+      <button class="pb" onclick="chp(-1)">&#8722;</button>
+      <span id="pval">${pers}</span>
+      <button class="pb" onclick="chp(1)">+</button>
+    </div>
+    <div class="pers-sub">Hoeveelheden worden automatisch berekend</div>
+  </div>
+  <hr class="div-line">
+  <p class="sel-hint">Selecteer de gerechten die je wilt maken:</p>`;
+
+  CA.forEach(cat=>{
+    h+=`<div class="csec ${cat.sc}"><p class="csecl">${cat.lb}</p>`;
+    RL.filter(r=>r.c===cat.k).forEach(rec=>{
+      const ck=rec.pioppi?'ck-am':{'gr':'ck-gr','vis':'ck-bl','vl':'ck-co'}[rec.c];
+      h+=`<label class="rchk" id="ck${rec.id}" onclick="tsel(event,${rec.id},'${ck}')">
+        <input type="checkbox" id="cb${rec.id}">
+        <div>
+          <div class="rcn">${rec.n}${rec.pioppi?` <span class="badge badge-pioppi">pioppi</span>`:''}</div>
+          <div class="rct">&#8987; ${rec.t} &middot; ${rec.bk}</div>
+        </div>
+      </label>`;
+    });
+    h+='</div>';
+  });
+
+  h+=`<button class="gbtn" onclick="genList()">&#9989; Maak boodschappenlijst</button><div id="lo"></div>`;
+  document.getElementById('bv').innerHTML=h;
+}
+
+function tsel(e,id,ck){
+  e.preventDefault();
+  const cb=document.getElementById('cb'+id),lbl=document.getElementById('ck'+id);
+  if(sel.includes(id)){sel=sel.filter(x=>x!==id);cb.checked=false;lbl.className='rchk';}
+  else{sel.push(id);cb.checked=true;lbl.className='rchk '+ck;}
+  gen=false;document.getElementById('lo').innerHTML='';
+}
+
+function chp(d){
+  pers=Math.min(12,Math.max(1,pers+d));
+  document.getElementById('pval').textContent=pers;
+  if(gen)genList();
+}
+
+function genList(){
+  if(!sel.length){document.getElementById('lo').innerHTML='<p style="text-align:center;padding:1.5rem;font-size:13px;color:var(--muted)">Selecteer eerst minimaal één gerecht hierboven.</p>';return;}
+  const recs=RL.filter(r=>sel.includes(r.id));
+  const map={};const gs=new Set();
+  recs.forEach(r=>{
+    const f=pers/r.b;
+    r.i.forEach(i=>{const k=i.n.toLowerCase()+'__'+i.u;if(map[k])map[k].a+=i.a*f;else map[k]={n:i.n,u:i.u,s:i.s,a:i.a*f};});
+    r.g.forEach(g=>gs.add(g));
+  });
+  const all=Object.values(map);
+  const grps=SE.map(sec=>({l:sec.l,items:all.filter(i=>i.s===sec.k).sort((a,b)=>a.n.localeCompare(b.n,'nl'))})).filter(g=>g.items.length>0);
+  const gar=[...gs].sort((a,b)=>a.localeCompare(b,'nl'));
+
+  let h=`<div class="slist"><div class="slhd"><div><div class="sltit">Boodschappenlijst</div><div class="slmet">${recs.length} gerecht${recs.length>1?'en':''} &middot; ${pers} ${pers===1?'persoon':'personen'}</div></div><button class="slrst" onclick="resetCks()">reset</button></div>`;
+  grps.forEach((grp,gi)=>{
+    h+=`<div class="slsec"><div class="slsecl">${grp.l}</div>`;
+    grp.items.forEach((item,ii)=>{
+      const id=`sl_${gi}_${ii}`;
+      h+=`<div class="sli" id="${id}" onclick="cktog('${id}')"><input type="checkbox" id="${id}cb"><span class="slin">${item.n}</span><span class="sliam">${fmt(item.a)} ${item.u}</span></div>`;
+    });
+    h+='</div>';
+  });
+  if(gar.length)h+=`<div class="slgar">Naar smaak / afwerking: ${gar.join(' &middot; ')}</div>`;
+  h+='</div>';
+  document.getElementById('lo').innerHTML=h;
+  gen=true;
+  setTimeout(()=>document.getElementById('lo').scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+
+function cktog(id){
+  const el=document.getElementById(id),cb=document.getElementById(id+'cb');
+  el.classList.toggle('done');cb.checked=el.classList.contains('done');
+}
+function resetCks(){
+  document.querySelectorAll('.sli').forEach(el=>{el.classList.remove('done');const cb=document.getElementById(el.id+'cb');if(cb)cb.checked=false;});
+}
+
+/* ─── TABS ───────────────────────────────────────────────── */
+document.querySelectorAll('.tbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    const t=btn.dataset.t;
+    document.getElementById('rv').classList.toggle('hid',t!=='r');
+    document.getElementById('bv').classList.toggle('hid',t!=='b');
+  });
+});
+
+buildR();buildB();
+</script>
+</body>
+</html>
